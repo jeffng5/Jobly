@@ -146,7 +146,7 @@ class Company {
   {   const result = await db.query(
 // this query filters out the companies based on entered parameters
       `SELECT handle, name, description, num_employees as "numEmployees", logo_url as "logoURL" FROM companies
-      WHERE name = $1 as companyName, numEmployees= > $2 as minEmployees, numEmployees <= $3 as maxEmployees,` [companyName, minEmployees, maxEmployees])
+      WHERE name %LIKE% $1 as companyName, numEmployees= > $2 as minEmployees, numEmployees <= $3 as maxEmployees,` [companyName, minEmployees, maxEmployees])
     let companyFilter = result.rows
 //these are error handlers oen for max/min constraint and the other for if query returns no answers
     if (minEmployees > maxEmployees) throw ('400 error max employees must be greater then min employees')

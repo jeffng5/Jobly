@@ -108,7 +108,11 @@ class User {
                   last_name AS "lastName",
                   email,
                   is_admin AS "isAdmin"
-           FROM users
+                  a.job_id AS "jobs applied for"
+           FROM users u
+           join
+           applications a
+           on u.username = a.username
            ORDER BY username`,
     );
 
@@ -129,8 +133,11 @@ class User {
                   first_name AS "firstName",
                   last_name AS "lastName",
                   email,
-                  is_admin AS "isAdmin"
-           FROM users
+                  is_admin AS "isAdmin",
+                  a.job_id AS "jobs applied for"
+           FROM users u
+           join applications a
+           on a.username = u.username 
            WHERE username = $1`,
         [username],
     );
@@ -204,7 +211,17 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
+
+
+
+  static async apply(username, job_id){
+    await db.query(
+      `INSERT into applications (
+        username, job_id) VALUES ($1, $2) RETURNING username, job_id`, 
+        [username, job_id]
+
+    )
+
+  }
 }
-
-
 module.exports = User;

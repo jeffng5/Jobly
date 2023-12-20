@@ -13,8 +13,8 @@ const companyNewSchema = require("../schemas/companyNew.json");
 const companyUpdateSchema = require("../schemas/companyUpdate.json");
 
 const router = new express.Router();
-
-
+// const db = require(".db,js")
+app.use(express.json())
 /** POST / { company } =>  { company }
  *
  * company should be { handle, name, description, numEmployees, logoUrl }
@@ -25,6 +25,7 @@ const router = new express.Router();
  */
 
 router.post("/", ensureLoggedIn, async function (req, res, next) {
+  console.log(res.locals.user)
   try {
     const validator = jsonschema.validate(req.body, companyNewSchema);
     if (!validator.valid) {
@@ -53,7 +54,8 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
 router.get("/", async function (req, res, next) {
   try {
    const { companyName, minEmployees, maxEmployees } = req.query
-    const companies = await Company.filter(companyName, minEmployees, maxEmployees);
+   console.log(req.query)
+    const companies = await Company.filter(req.query)
     return res.json({ companies });
   } catch (err) {
     return next(err);
@@ -109,9 +111,12 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.delete("/:handle", ensureLoggedIn, async function (req, res, next) {
+  console.log(res.locals.user)
+    // const adminUser = await db.query(`SELECT username, is admin FROM users`)
+  
   try {
-    await Company.remove(req.params.handle);
-    return res.json({ deleted: req.params.handle });
+    const deleted = await Company.remove(req.params.handle);
+    return res.json({ deleted: deleted});
   } catch (err) {
     return next(err);
   }
