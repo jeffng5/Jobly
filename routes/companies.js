@@ -4,17 +4,16 @@
 
 const jsonschema = require("jsonschema");
 const express = require("express");
-
+const { ensureCorrectUserOrAdmin, ensureLoggedIn, ensureAdmin, authenticateJWT } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
-const { ensureLoggedIn } = require("../middleware/auth");
 const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
 const companyUpdateSchema = require("../schemas/companyUpdate.json");
 
 const router = new express.Router();
-// const db = require(".db,js")
-app.use(express.json())
+
+
 /** POST / { company } =>  { company }
  *
  * company should be { handle, name, description, numEmployees, logoUrl }
@@ -24,21 +23,21 @@ app.use(express.json())
  * Authorization required: login
  */
 
-router.post("/", ensureLoggedIn, async function (req, res, next) {
+router.post("/", async function (req, res, next) {
   console.log(res.locals.user)
-  try {
-    const validator = jsonschema.validate(req.body, companyNewSchema);
-    if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
-    }
-
+  // try {
+  //   const validator = jsonschema.validate(req.body, companyNewSchema);
+  //   if (!validator.valid) {
+  //     const errs = validator.errors.map(e => e.stack);
+  //     throw new BadRequestError(errs);
+  //   }
+    
     const company = await Company.create(req.body);
     return res.status(201).json({ company });
-  } catch (err) {
-    return next(err);
-  }
-});
+  //  catch (err) {
+  //   return next(err);
+  })
+// });
 
 /** GET /  =>
  *   { companies: [ { handle, name, description, numEmployees, logoUrl }, ...] }
@@ -51,16 +50,6 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: none
  */
 
-router.get("/", async function (req, res, next) {
-  try {
-   const { companyName, minEmployees, maxEmployees } = req.query
-   console.log(req.query)
-    const companies = await Company.filter(req.query)
-    return res.json({ companies });
-  } catch (err) {
-    return next(err);
-  }
-});
 
 /** GET /[handle]  =>  { company }
  *
@@ -71,6 +60,7 @@ router.get("/", async function (req, res, next) {
  */
 
 router.get("/:handle", async function (req, res, next) {
+  
   try {
     const company = await Company.get(req.params.handle);
     return res.json({ company });
@@ -90,15 +80,16 @@ router.get("/:handle", async function (req, res, next) {
  * Authorization required: login
  */
 
-router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
+router.patch("/:handle", async function (req, res, next) {
   try {
-    const validator = jsonschema.validate(req.body, companyUpdateSchema);
-    if (!validator.valid) {
-      const errs = validator.errors.map(e => e.stack);
-      throw new BadRequestError(errs);
-    }
-
-    const company = await Company.update(req.params.handle, req.body);
+    // const validator = jsonschema.validate(req.body, companyUpdateSchema);
+    // if (!validator.valid) {
+    //   const errs = validator.errors.map(e => e.stack);
+    //   throw new BadRequestError(errs);
+    // }
+    const { handle } = req.params.handle
+    const { data } = req.body
+    const company = await Company.update(handle, data);
     return res.json({ company });
   } catch (err) {
     return next(err);
@@ -110,13 +101,13 @@ router.patch("/:handle", ensureLoggedIn, async function (req, res, next) {
  * Authorization: login
  */
 
-router.delete("/:handle", ensureLoggedIn, async function (req, res, next) {
+router.delete("/:handle", async function (req, res, next) {
   console.log(res.locals.user)
     // const adminUser = await db.query(`SELECT username, is admin FROM users`)
-  
+    const { handle } = req.params
   try {
-    const deleted = await Company.remove(req.params.handle);
-    return res.json({ deleted: deleted});
+    const deleted = await Company.remove(handle);
+    return res.json({ "deleted": deleted});
   } catch (err) {
     return next(err);
   }
@@ -131,6 +122,15 @@ router.get("/", async function (req, res, next) {
   }
 });
 
+
+router.get("/", async function (req, res, next) {
+  try {
+    const companies = await Company.filter(req.query)
+    return res.json({ companies });
+  } catch (err) {
+    return next(err);
+  }
+});
 
 
 

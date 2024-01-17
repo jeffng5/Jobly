@@ -14,7 +14,7 @@ if (process.env.NODE_ENV === "production") {
   });
 } else {
   db = new Client({
-    connectionString: getDatabaseUri()
+    connectionString: "postgresql://jeffreyng:beachbodyp90x@127.0.0.1:5433/jobly"
   });
 }
 

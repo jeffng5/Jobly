@@ -6,11 +6,11 @@ const { sqlForPartialUpdate } = require("../helpers/sql");
 
 
 class Job {
-    static async create({ title, salary, equity, company_handle }){
+    static async create({title, salary, equity, company_handle}){
         const duplicateCheck = await db.query(
             `SELECT handle FROM companies WHERE handle = $1`, [company_handle]
         );
-        if (duplicateCheck.rows[1])
+        if (duplicateCheck.rows[0])
             throw new BadRequestError(`Job already posted: ${company_handle}`);
         
         const result= await db.query(

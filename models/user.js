@@ -56,8 +56,7 @@ class User {
    * Throws BadRequestError on duplicates.
    **/
 
-  static async register(
-      { username, password, firstName, lastName, email, isAdmin }) {
+  static async register({ username, password, firstName, lastName, email, isAdmin }) {
     const duplicateCheck = await db.query(
           `SELECT username
            FROM users
@@ -108,11 +107,9 @@ class User {
                   last_name AS "lastName",
                   email,
                   is_admin AS "isAdmin"
-                  a.job_id AS "jobs applied for"
+    
            FROM users u
-           join
-           applications a
-           on u.username = a.username
+     
            ORDER BY username`,
     );
 
@@ -133,11 +130,10 @@ class User {
                   first_name AS "firstName",
                   last_name AS "lastName",
                   email,
-                  is_admin AS "isAdmin",
-                  a.job_id AS "jobs applied for"
+                  is_admin AS "isAdmin"
+                
            FROM users u
-           join applications a
-           on a.username = u.username 
+        
            WHERE username = $1`,
         [username],
     );
@@ -214,14 +210,15 @@ class User {
 
 
 
-  static async apply(username, job_id){
-    await db.query(
+  static async apply({username, job_id}){
+    const apply = await db.query(
       `INSERT into applications (
         username, job_id) VALUES ($1, $2) RETURNING username, job_id`, 
         [username, job_id]
 
     )
-
-  }
+       let valid=  apply.rows[0]
+       return valid
+  } 
 }
 module.exports = User;

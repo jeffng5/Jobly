@@ -145,8 +145,9 @@ class Company {
   static async filter(companyName, minEmployees, maxEmployees)
   {   const result = await db.query(
 // this query filters out the companies based on entered parameters
-      `SELECT handle, name, description, num_employees as "numEmployees", logo_url as "logoURL" FROM companies
-      WHERE name %LIKE% $1 as companyName, numEmployees= > $2 as minEmployees, numEmployees <= $3 as maxEmployees,` [companyName, minEmployees, maxEmployees])
+      `SELECT handle, name, num_employees FROM companies
+      WHERE LOWER(name) LIKE LOWER($1) AND num_employees >= $2 AND num_employees <= $3`, [`%${companyName}%`, minEmployees, maxEmployees])
+      console.log(result)
     let companyFilter = result.rows
 //these are error handlers oen for max/min constraint and the other for if query returns no answers
     if (minEmployees > maxEmployees) throw ('400 error max employees must be greater then min employees')
