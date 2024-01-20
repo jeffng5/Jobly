@@ -89,7 +89,7 @@ router.patch("/:handle", async function (req, res, next) {
     // }
     const { handle } = req.params.handle
     const { data } = req.body
-    const company = await Company.update(handle, data);
+    const company = await Company.update(req.params.handle, req.body);
     return res.json({ company });
   } catch (err) {
     return next(err);

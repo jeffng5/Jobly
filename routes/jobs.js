@@ -23,14 +23,11 @@ router.get("/", async function(req, res,next){
 })
 
 router.post("/", async function(req, res, next){
-    // const {title, salary, equity, company_handle} = req.query
-    try{
-        const createJob = await Job.create(req.body)
-        return res.status(201).json({createJob});
-    }catch (err) {
-        return next(err);
-    }
+    const createJob = await Job.create(req.body)
+    return res.status(201).json({createJob});
+    
     })
+
 router.get("/:handle", async function (req, res,next) {
     try {
         const job = await Job.get(req.params.handle);
