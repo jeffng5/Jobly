@@ -23,20 +23,20 @@ const router = new express.Router();
  * Authorization required: login
  */
 
-router.post("/", async function (req, res, next) {
+router.post("/", ensureAdmin, async function (req, res, next) {
   console.log(res.locals.user)
-  // try {
-  //   const validator = jsonschema.validate(req.body, companyNewSchema);
-  //   if (!validator.valid) {
-  //     const errs = validator.errors.map(e => e.stack);
-  //     throw new BadRequestError(errs);
-  //   }
+  try {
+    const validator = jsonschema.validate(req.body, companyNewSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
     
     const company = await Company.create(req.body);
     return res.status(201).json({ company });
-  //  catch (err) {
-  //   return next(err);
-  })
+  } catch (err) {
+    return next(err);
+  }});
 // });
 
 /** GET /  =>
@@ -80,13 +80,13 @@ router.get("/:handle", async function (req, res, next) {
  * Authorization required: login
  */
 
-router.patch("/:handle", async function (req, res, next) {
+router.patch("/:handle", ensureAdmin, async function (req, res, next) {
   try {
-    // const validator = jsonschema.validate(req.body, companyUpdateSchema);
-    // if (!validator.valid) {
-    //   const errs = validator.errors.map(e => e.stack);
-    //   throw new BadRequestError(errs);
-    // }
+    const validator = jsonschema.validate(req.body, companyUpdateSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
+    }
     const { handle } = req.params.handle
     const { data } = req.body
     const company = await Company.update(req.params.handle, req.body);
@@ -101,9 +101,9 @@ router.patch("/:handle", async function (req, res, next) {
  * Authorization: login
  */
 
-router.delete("/:handle", async function (req, res, next) {
+router.delete("/:handle", ensureAdmin, async function (req, res, next) {
   console.log(res.locals.user)
-    // const adminUser = await db.query(`SELECT username, is admin FROM users`)
+
     const { handle } = req.params
   try {
     const deleted = await Company.remove(handle);
